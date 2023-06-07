@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { getCookie } from '@/utils/cookie'
+import { GM_xmlhttpRequest } from '$'
 
 type Props = {
   avatar: string
@@ -55,17 +56,20 @@ const Header: React.FC<Props> = ({ avatar, uid, category, tab, onCategoryChange,
   }, [])
 
   const logout = async () => {
-    await fetch(`https://www.douban.com/accounts/logout?source=${category}&ck=${getCookie('ck')}`, {
+    GM_xmlhttpRequest({
       method: 'GET',
+      url: `https://www.douban.com/accounts/logout?source=${category}&ck=${getCookie('ck')}`,
+      onload: function () {
+        window.location.href = `https://accounts.douban.com/passport/login?source=${category}`
+      },
     })
-    window.location.href = `https://accounts.douban.com/passport/login?source=${category}`
   }
 
   const placeholder = category === 'book' ? '搜索书名、作者、ISBN' : '搜索电影、电视剧、综艺、影人'
   const tabText = category === 'book' ? '读' : '看'
 
   return (
-    <header className="h-[70px] flex items-center justify-between">
+    <header className="h-[70px] flex items-center justify-between sticky top-0 bg-white">
       <div className="flex items-center flex-1">
         <Select value={category} onValueChange={onCategoryChange}>
           <SelectTrigger className="w-[130px]">

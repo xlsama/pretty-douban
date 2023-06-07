@@ -29,6 +29,7 @@ export default defineConfig({
         homepageURL: 'https://github.com/xlsama/pretty-douban',
         updateURL: 'https://github.com/xlsama/pretty-douban',
         grant: 'GM_xmlhttpRequest',
+        'run-at': 'document-body',
       },
       build: {
         fileName: 'pretty-douban.js',

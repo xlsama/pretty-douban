@@ -8,12 +8,12 @@ import useItems from '@/hooks/useItems'
 
 function App() {
   const uid = useMemo(() => location.pathname.split('/')?.at(2) ?? '', [])
-  const [category, setCategory] = useState<'book' | 'movie'>('book')
+  const [category, setCategory] = useState<'book' | 'movie'>(
+    window.location.host.includes('movie') ? 'movie' : 'book',
+  )
   const [tab, setTab] = useState<string>('do')
   const { avatar, stats } = usePeople(uid)
   const { items } = useItems(uid, category, tab)
-
-  console.log({ items })
 
   return (
     <div className="app min-h-screen px-[7vw] pb-20">
