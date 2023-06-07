@@ -29,7 +29,7 @@ const Item: React.FC<Props> = ({ item }) => {
       <img className="rounded-md object-cover" src={item.imgUrl} />
       <CardContent>
         <p>{item.title}</p>
-        <p>{item.pub.author}</p>
+        <p>{item.pub?.author}</p>
         <p>{item.date}</p>
         <p>{item.tags}</p>
       </CardContent>
