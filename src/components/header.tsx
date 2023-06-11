@@ -42,7 +42,15 @@ type Props = {
   onTabChange: (value: string) => void
 }
 
-const Header: React.FC<Props> = ({ avatar, uid, category, tab, onCategoryChange, onTabChange }) => {
+const Header: React.FC<Props> = ({
+  avatar,
+  stats,
+  uid,
+  category,
+  tab,
+  onCategoryChange,
+  onTabChange,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -69,7 +77,7 @@ const Header: React.FC<Props> = ({ avatar, uid, category, tab, onCategoryChange,
   const tabText = category === 'book' ? '读' : '看'
 
   return (
-    <header className="h-[70px] flex items-center justify-between sticky top-0 bg-white">
+    <header className="h-[70px] flex items-center justify-between sticky top-0 bg-white z-50">
       <div className="flex items-center flex-1">
         <Select value={category} onValueChange={onCategoryChange}>
           <SelectTrigger className="w-[130px]">
@@ -82,9 +90,20 @@ const Header: React.FC<Props> = ({ avatar, uid, category, tab, onCategoryChange,
         </Select>
         <Tabs value={tab} className="w-[250px] ml-32" onValueChange={onTabChange}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="do">在{tabText}</TabsTrigger>
-            <TabsTrigger value="wish">想{tabText}</TabsTrigger>
-            <TabsTrigger value="collect">{tabText}过</TabsTrigger>
+            <TabsTrigger value="do">
+              在{tabText}
+              {/* @ts-ignore */}
+              <span className="ml-1 align-baseline text-sm">{stats[category]?.do}</span>
+            </TabsTrigger>
+            <TabsTrigger value="wish">
+              想{tabText}
+              {/* @ts-ignore */}
+              <span className="ml-1 align-baseline">{stats[category]?.wish}</span>
+            </TabsTrigger>
+            <TabsTrigger value="collect">
+              {tabText}过{/* @ts-ignore */}
+              <span className="ml-1 align-baseline">{stats[category]?.collect}</span>
+            </TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="relative">

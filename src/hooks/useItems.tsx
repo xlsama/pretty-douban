@@ -6,6 +6,10 @@ import useSWR from 'swr'
 const parserHTML = (htmlText: string, category: 'book' | 'movie') => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(htmlText, 'text/html')
+  const tagList = Array.from(doc.querySelectorAll('.tag-list li')).map(el => ({
+    name: el.children[0].textContent ?? '',
+    count: Number(el.children[1].textContent) || 0,
+  }))
   let items: any[] = []
 
   if (category === 'book') {
@@ -51,52 +55,53 @@ const parserHTML = (htmlText: string, category: 'book' | 'movie') => {
     })
   }
 
-  return items
+  return { tagList, items }
 }
 
-const fetcher = ({ url, offset, tag }: { url: string; offset: number; tag: string }) =>
-  Promise.all(
-    [offset, offset + 15].map(start => {
-      let query = `?start=${start}&sort=time&rating=all&filter=all&mode=grid`
-      if (tag) {
-        query += `&tag=${tag}`
-      }
-      return new Promise<string>(resolve => {
-        GM_xmlhttpRequest({
-          method: 'GET',
-          url: `${url}${query}`,
-          onload: function (response) {
-            resolve(response.responseText)
-          },
-        })
-      })
-    }),
-  )
+const fetcher = ({ url, offset, tag }: { url: string; offset: number; tag: string }) => {
+  let query = `?start=${offset}&sort=time&rating=all&filter=all&mode=grid`
+  if (tag) {
+    query += `&tag=${tag}`
+  }
+  return new Promise<string>(resolve => {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url: `${url}${query}`,
+      onload: function (response) {
+        resolve(response.responseText)
+      },
+    })
+  })
+}
 
-const useItems = (uid: string, category: 'book' | 'movie', tab: string) => {
+const useItems = (uid: string, category: 'book' | 'movie', tab: string, tag: string) => {
   const [currentPage, setCurrentPage] = useState(INITIAL_PAGE)
   const [items, setItems] = useState<any[]>([])
+  const [tagList, setTagList] = useState<{ name: string; count: number }[]>([])
 
   const { data, isLoading, mutate } = useSWR(
     {
       url: `https://${category}.douban.com/people/${uid}/${tab}`,
       offset: (currentPage - 1) * INITIAL_PAGE_SIZE,
-      // tag: tag?.name,
+      tag,
     },
     fetcher,
   )
 
   useEffect(() => {
     if (!isLoading && data) {
-      const [firstHalfHTMLStr, secondHalfHTMLStr] = data
-      const items = parserHTML(firstHalfHTMLStr, category).concat(
-        parserHTML(secondHalfHTMLStr, category),
-      )
-      setItems(items)
+      const { items, tagList } = parserHTML(data, category)
+      setItems(pre => pre.concat(items))
+      setTagList(tagList)
     }
   }, [data, isLoading])
 
-  return { items }
+  useEffect(() => {
+    // setItems([])
+    // mutate()
+  }, [category, tab, tag])
+
+  return { items, tagList, isLoading, currentPage, setCurrentPage, mutate }
 }
 
 export default useItems

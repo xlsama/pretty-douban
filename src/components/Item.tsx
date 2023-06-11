@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 export type Book = {
   id: string
@@ -25,15 +23,31 @@ type Props = {
 
 const Item: React.FC<Props> = ({ item }) => {
   return (
-    <Card className="overflow-hidden">
-      <img className="rounded-md object-cover" src={item.imgUrl} />
-      <CardContent>
-        <p>{item.title}</p>
-        <p>{item.pub?.author}</p>
-        <p>{item.date}</p>
-        <p>{item.tags}</p>
-      </CardContent>
-    </Card>
+    <div
+      onClick={() => window.open(item.link)}
+      className="cursor-pointer flex gap-10 bg-white shadow-md rounded-lg px-3 hover:scale-[1.05] transition-all duration-200"
+    >
+      <div className="h-[232px] flex flex-col justify-center">
+        <img src={item.imgUrl} width={135} className="rounded-md" />
+      </div>
+      <div className="flex-1 flex flex-col gap-3 justify-center">
+        <p className="font-medium text-lg text-gray-700">{item.title}</p>
+        <p className="text-gray-500">{item.pub?.author}</p>
+        <p className="text-gray-400">{item.date}</p>
+        {item.tags && (
+          <div className="flex flex-wrap gap-2">
+            {item.tags.split(' ').map((tag: string) => (
+              <span
+                key={tag}
+                className="inline-block bg-gray-200 text-gray-700 rounded-md text-xs px-2 py-1"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 

@@ -12,8 +12,22 @@ function App() {
     window.location.host.includes('movie') ? 'movie' : 'book',
   )
   const [tab, setTab] = useState<string>('do')
+  const [tag, setTag] = useState('')
   const { avatar, stats } = usePeople(uid)
-  const { items } = useItems(uid, category, tab)
+  const { items, tagList, setCurrentPage, isLoading } = useItems(uid, category, tab, tag)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 250) {
+        if (isLoading) return
+        setCurrentPage(pre => pre + 1)
+      }
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [isLoading])
 
   return (
     <div className="app min-h-screen px-[7vw] pb-20">
@@ -27,8 +41,8 @@ function App() {
         onTabChange={setTab}
       />
       <Separator className="my-4" />
-      <Tags />
-      <main className="mt-6 grid grid-cols-7 gap-10">
+      <Tags tagList={tagList} tag={tag} setTag={setTag} />
+      <main className="mt-6 grid grid-cols-4 gap-12">
         {items.map((item, index) => {
           return <Item key={index} item={item} />
         })}
